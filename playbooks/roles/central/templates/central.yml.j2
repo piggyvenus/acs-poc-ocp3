@@ -1,0 +1,27 @@
+# Configuration secrets for the Central deployment
+central:
+  # Administrator password for logging in to the StackRox Portal.
+  # htpasswd (bcrypt) encoded for security reasons, consult the "password" file
+  # that is part of the deployment bundle for the raw password.
+  adminPassword:
+    htpasswd: |
+      {{ htpasswd }}
+  exposure:
+    route:
+      enabled: true
+
+{% if imageregistry != '' %}
+image:
+  registry: "{{ imageregistry }}"
+{% endif %}
+
+
+
+
+
+
+imagePullSecrets:
+    username: "{{ imagepulluser }}"
+    password: "{{ imagepullpassword }}"
+
+

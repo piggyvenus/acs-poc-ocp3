@@ -1,0 +1,41 @@
+---
+- name: Get existing auth providers
+  uri:
+    url: "{{ central_url }}/v1/authProviders"
+    method: GET
+    user: admin
+    password: "{{ admin_password }}"
+    body_format: json
+    force_basic_auth: true
+    validate_certs: no
+  register: authProviders
+
+- set_fact:
+    authProviderAlreadyDefined: "{{ authProviders.json.authProviders | json_query(jmesquery) }}"
+  vars:
+    jmesquery: "[? name==`Default Auth0`]"
+
+- name: Apply/update policies
+  uri:
+    url: "{{ central_url }}/v1/authProviders"
+    body: "{{ lookup('template', 'templates/auth0/auth_config.json.j2' ) }}"
+    method: POST
+    user: admin
+    password: "{{ admin_password }}"
+    body_format: json
+    force_basic_auth: true
+    validate_certs: no
+  register: authProvider
+  when: authProviderAlreadyDefined[0].name is not defined 
+
+- name: Create Auth0 group
+  uri:
+    url: "{{ central_url }}/v1/groups"
+    body: "{{ lookup('template', 'templates/auth0/group.json.j2' ) }}"
+    method: POST
+    user: admin
+    password: "{{ admin_password }}"
+    body_format: json
+    force_basic_auth: true
+    validate_certs: no
+  when: authProviderAlreadyDefined[0].name is not defined

@@ -1,0 +1,37 @@
+---
+- hosts: local
+
+  vars_files:
+    - vars/vars.yml
+
+  pre_tasks:
+    - copy:
+        dest: "{{ kubeconfig }}"
+        src: "{{ kubeconfig_path }}/config"
+        mode: 0600
+
+    - set_fact:
+        central_port: "{{ central_port }}"
+        original_central_addr: "{{ original_central_addr | default('', True) }}"
+        central_addr: "{{ central_address }}"
+        admin_password: "{{ admin_password }}"
+        orchestrator: "{{ orchestrator }}"
+        kubeconfig: "{{ kubeconfig }}"
+        kubeconfig_path: "{{ kubeconfig_path }}"
+        imagepulluser: "{{ image_pull_user }}"
+        imagepullpassword: "{{ image_pull_password }}"
+        imageregistry: "{{ imageregistry | default('', True) }}"
+
+    - name: Installing on OpenShift
+      set_fact:
+        orchestrator_tool: oc
+
+  tasks:
+    - import_role:
+        name: central
+      when:
+        original_central_addr == ""
+    - import_role:
+        name: cluster_sensor
+      when:
+        original_central_addr == ""

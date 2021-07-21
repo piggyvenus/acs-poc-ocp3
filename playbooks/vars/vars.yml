@@ -1,0 +1,11 @@
+---
+kubeconfig_path: /username/.kube
+kubeconfig: /username/acs-ocp3/playbooks/files/kubeconfig
+central_port: 443
+central_address: central-stackrox.apps.<subdomain>
+admin_password: add-acs-pwd
+orchestrator: openshift
+image_pull_user: user
+image_pull_password: pwd
+imageregistry: 
+original_central_addr:

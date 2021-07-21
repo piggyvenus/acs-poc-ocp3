@@ -1,0 +1,47 @@
+---
+- name: Generate htpasswd
+  htpasswd:
+    path: ../../../files/passwdfile
+    name: admin
+    password: "{{ admin_password }}"
+    crypt_scheme: "bcrypt"
+
+- name: Add helm repo
+  kubernetes.core.helm_repository:
+    name: rhacs
+    url: "https://mirror.openshift.com/pub/rhacs/charts/"
+
+- set_fact:
+    htpasswd: "{{ lookup('file', '../../../files/passwdfile') }}"
+
+- name: Deploy Central
+  kubernetes.core.helm:
+    name: stackrox-central-services
+    chart_ref: rhacs/central-services
+    release_namespace: stackrox
+    values: "{{ lookup('template', 'templates/central.yml.j2') | from_yaml }}"
+    create_namespace: true
+
+- name: OCP - get route
+  command: "oc get route -n stackrox central -o jsonpath='{.status.ingress[0].host}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  register: get_route
+
+- set_fact:
+    central_addr: "{{ get_route.stdout }}"
+  retries: 5
+  delay: 20
+
+- name: Wait for Central availability
+  uri:
+    url: "{{ central_url }}/v1/ping"
+    method: GET
+    user: admin
+    password: "{{ admin_password }}"
+    force_basic_auth: true
+    validate_certs: no  
+  register: result
+  until: result.status == 200
+  retries: 8
+  delay: 20

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: acs-volume
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 100Gi
+  nfs:
+    path: /exports/stackrox
+    server: ip-10-0-0-67.us-west-1.compute.internal
+  persistentVolumeReclaimPolicy: Delete
