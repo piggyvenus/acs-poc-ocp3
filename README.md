@@ -9,4 +9,5 @@ To use:
 3. Run: ansible-playbook -i hosts playbooks/main.yml  
 
 Notes:
-passlib >=1.6 is required 
+- passlib >=1.6 is required 
+- Install `ansible-galaxy collection install kubernetes.core`
